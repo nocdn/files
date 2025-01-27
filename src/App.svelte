@@ -9,6 +9,9 @@
   let files = $state([]);
   let loading = $state(true);
   let uploading = $state(false);
+  let fileInput;
+  let fileInputValue;
+  let isDragging = $state(false); // State for drag and drop
 
   async function fetchFiles() {
     loading = true;
@@ -21,8 +24,8 @@
   }
 
   async function handleUpload() {
-    const fileInput = document.getElementById("file-input");
-    const file = fileInput.files[0];
+    // Access file directly from the bound fileInput element
+    const file = fileInput?.files[0];
 
     if (!file) {
       toast.error("Please select a file first");
@@ -69,10 +72,8 @@
 
       toast.success("File uploaded successfully!", { id: toastId });
 
-      // Clear the file input
-      fileInput.value = "";
+      fileInputValue = "";
 
-      // Refresh the file list
       await fetchFiles();
     } catch (error) {
       console.error("Upload error:", error);
@@ -98,15 +99,57 @@
         : file.fileName.toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
+
+  function handleDrop(event) {
+    event.preventDefault();
+    isDragging = false;
+    const droppedFiles = event.dataTransfer.files;
+    if (droppedFiles.length > 0) {
+      fileInput.files = droppedFiles; // Programmatically set files
+      handleUpload(); // Directly call upload function after drop
+    }
+  }
 </script>
 
-<main class="grid grid-cols-[30%_70%] gap-4 p-8 h-screen w-screen">
+<!-- svelte-ignore a11y-mouse-events-have-key-events -->
+<main
+  ondragover={(event) => {
+    event.preventDefault();
+    isDragging = true;
+  }}
+  ondragenter={(event) => {
+    event.preventDefault();
+    isDragging = true;
+  }}
+  ondragleave={(event) => {
+    event.preventDefault();
+    isDragging = false;
+  }}
+  class="relative grid grid-cols-[30%_70%] gap-4 p-8 h-screen w-screen"
+>
+  {#if isDragging}
+    <!-- Dropzone overlay -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      ondrop={handleDrop}
+      class="absolute inset-0 bg-black/65 z-50 flex flex-col justify-center items-center text-white p-3"
+    >
+      <div class="w-full h-full border-2 border-white border-dashed rounded-sm">
+        <div class="grid place-content-center h-full">
+          <div class="flex flex-col items-center gap-0.5">
+            <p class="text-xl font-semibold font-mono">Drop the file</p>
+            <p class="text-sm font-semibold font-mono">do it.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
   <!-- upload files -->
   <div id="uploads" class="flex flex-col gap-2">
     <p style="letter-spacing: -0.5px;" class="font-mono font-semibold">
       Upload a file
     </p>
-    <form class="" onsubmit|preventDefault>
+    <form>
       <label for="file-input" class="sr-only">Choose file</label>
       <input
         type="file"
@@ -118,13 +161,15 @@
         file:py-3 file:px-4
        "
         disabled={uploading}
+        bind:this={fileInput}
+        bind:value={fileInputValue}
       />
     </form>
     <button
       type="button"
-      on:click={handleUpload}
+      onclick={handleUpload}
       disabled={uploading}
-      class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+      class="py-2.5 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
     >
       {#if uploading}
         <Spinner /> Uploading...
