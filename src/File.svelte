@@ -42,7 +42,7 @@
       {:else if fileName.endsWith(".jpg") || fileName.endsWith(".JPG") || fileName.endsWith(".jpeg") || fileName.endsWith(".png") || fileName.endsWith(".gif") || fileName.endsWith(".webp") || fileName.endsWith(".svg") || fileName.endsWith(".avif")}
         <Image size={16} color={"blue"} strokeWidth={2.25} />
       {:else if fileName.endsWith(".js") || fileName.endsWith(".mjs") || fileName.endsWith(".cjs") || fileName.endsWith(".ts") || fileName.endsWith(".jsx") || fileName.endsWith(".tsx") || fileName.endsWith(".py") || fileName.endsWith(".pyw") || fileName.endsWith(".pyc") || fileName.endsWith(".pyd") || fileName.endsWith(".pyo") || fileName.endsWith(".pyi")}
-        <FileCode2 size={16} color={"yellow"} strokeWidth={2.25} />
+        <FileCode2 size={16} color={"#FF0032"} strokeWidth={2.25} />
       {:else if fileName.endsWith(".mp3") || fileName.endsWith(".wav") || fileName.endsWith(".ogg") || fileName.endsWith(".flac") || fileName.endsWith(".aac") || fileName.endsWith(".m4a")}
         <FileAudio2 size={16} color={"darkgreen"} strokeWidth={2.25} />
       {:else}

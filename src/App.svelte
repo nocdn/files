@@ -4,21 +4,84 @@
   import Spinner from "./Spinner.svelte";
   import File from "./File.svelte";
   import { onMount } from "svelte";
-
   import NumberFlow from "@number-flow/svelte";
 
   let files = $state([]);
   let loading = $state(true);
+  let uploading = $state(false);
 
   async function fetchFiles() {
     loading = true;
-    const respone = await fetch(
+    const response = await fetch(
       "https://7lqxtynf6xcfto7c3pxoqvipye0vokfk.lambda-url.eu-west-2.on.aws/"
     );
-    files = await respone.json();
+    files = await response.json();
     loading = false;
     console.log(files);
   }
+
+  async function handleUpload() {
+    const fileInput = document.getElementById("file-input");
+    const file = fileInput.files[0];
+
+    if (!file) {
+      toast.error("Please select a file first");
+      return;
+    }
+
+    uploading = true;
+    const toastId = toast.loading("Getting upload URL...");
+
+    try {
+      // Get the presigned URL
+      const response = await fetch(
+        "https://7lqxtynf6xcfto7c3pxoqvipye0vokfk.lambda-url.eu-west-2.on.aws/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fileName: file.name,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to get upload URL");
+      }
+
+      const { uploadURL } = await response.json();
+
+      // Upload the file using the presigned URL
+      toast.loading("Uploading file...", { id: toastId });
+      const uploadResponse = await fetch(uploadURL, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload file");
+      }
+
+      toast.success("File uploaded successfully!", { id: toastId });
+
+      // Clear the file input
+      fileInput.value = "";
+
+      // Refresh the file list
+      await fetchFiles();
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload file", { id: toastId });
+    } finally {
+      uploading = false;
+    }
+  }
+
   let filesCount = $derived(files.length);
   fetchFiles();
 
@@ -43,7 +106,7 @@
     <p style="letter-spacing: -0.5px;" class="font-mono font-semibold">
       Upload a file
     </p>
-    <form class="">
+    <form class="" onsubmit|preventDefault>
       <label for="file-input" class="sr-only">Choose file</label>
       <input
         type="file"
@@ -54,17 +117,20 @@
         file:me-4
         file:py-3 file:px-4
        "
+        disabled={uploading}
       />
     </form>
     <button
       type="button"
-      onclick={() =>
-        toast.success("Uploading...", {
-          icon: Spinner,
-        })}
+      on:click={handleUpload}
+      disabled={uploading}
       class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
     >
-      Upload <Upload size={16} />
+      {#if uploading}
+        <Spinner /> Uploading...
+      {:else}
+        Upload <Upload size={16} />
+      {/if}
     </button>
   </div>
   <!-- files list -->
