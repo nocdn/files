@@ -10,9 +10,20 @@
     FileText,
     FileVideo2,
     File,
+    Link,
+    Check,
   } from "lucide-svelte";
 
   let { fileName, downloadURL } = $props();
+
+  let tempCopied = $state(false);
+  function copyToClipoard(link) {
+    navigator.clipboard.writeText(link);
+    tempCopied = true;
+    setTimeout(() => {
+      tempCopied = false;
+    }, 1500);
+  }
 </script>
 
 <main class="flex w-full justify-between items-center">
@@ -47,7 +58,20 @@
   </div>
   <div class="flex gap-3">
     <button
-      class="py-2 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none hover:bg-red-50 hover:text-red-700 hover:border-red-200 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600"
+      onmousedown={() => {
+        console.log("copying...");
+        copyToClipoard(downloadURL);
+      }}
+      class="py-2 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none hover:bg-blue-50 hover:text-blue-800 hover:border-blue-200 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600"
+    >
+      {#if tempCopied}
+        <Check size={16} />
+      {:else}
+        <Link size={16} />
+      {/if}
+    </button>
+    <button
+      class="py-2 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none hover:bg-red-50 hover:text-red-700 hover:border-red-200 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600"
     >
       <Trash2 size={16} />
     </button>
