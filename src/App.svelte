@@ -5,6 +5,8 @@
   import File from "./File.svelte";
   import { onMount } from "svelte";
 
+  import NumberFlow from "@number-flow/svelte";
+
   let files = $state([]);
   async function fetchFiles() {
     const respone = await fetch(
@@ -13,7 +15,7 @@
     files = await respone.json();
     console.log(files);
   }
-
+  let filesCount = $derived(files.length);
   fetchFiles();
 
   let inputField;
@@ -22,9 +24,17 @@
   });
 
   let searchQuery = $state("");
+  let searchResults = $derived(
+    files.filter((file) =>
+      searchQuery.length === 0
+        ? true
+        : file.fileName.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
 </script>
 
 <main class="grid grid-cols-[30%_70%] gap-4 p-8 h-screen w-screen">
+  <!-- upload files -->
   <div id="uploads" class="flex flex-col gap-2">
     <p style="letter-spacing: -0.5px;" class="font-mono font-semibold">
       Upload a file
@@ -53,8 +63,11 @@
       Upload <Upload size={16} />
     </button>
   </div>
+  <!-- files list -->
   <div id="files" class="w-full flex flex-col gap-2">
-    <p style="letter-spacing: -0.5px;" class="font-mono font-semibold">Files</p>
+    <p style="letter-spacing: -0.5px;" class="font-mono font-semibold">
+      Files count - <NumberFlow value={filesCount} />
+    </p>
     <div
       class="h-full font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm p-5 pl-6 flex flex-col gap-3 overflow-y-scroll"
     >
@@ -62,12 +75,13 @@
         <Search size={16} color="gray" strokeWidth={2.5} />
         <input
           bind:this={inputField}
+          bind:value={searchQuery}
           type="text"
           placeholder="Search files"
           class="w-full active:outline-none active:ring-0 focus:outline-none focus:ring-0"
         />
       </div>
-      {#each files as file}
+      {#each searchResults as file}
         <div class="flex gap-3 justify-center items-center">
           <File fileName={file.fileName} downloadURL={file.downloadURL} />
         </div>

@@ -18,7 +18,7 @@
 <main class="flex w-full justify-between items-center">
   <div class="flex items-center gap-3">
     <div
-      class="py-3 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm"
+      class="py-3 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800"
     >
       {#if fileName.endsWith(".zip")}
         <FileArchive size={16} color="red" strokeWidth={2.25} />
