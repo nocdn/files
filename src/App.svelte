@@ -1,5 +1,5 @@
 <script>
-  import { Upload, Search } from "lucide-svelte";
+  import { Upload, Search, HeartCrack } from "lucide-svelte";
   import { Toaster, toast } from "svelte-sonner";
   import Spinner from "./Spinner.svelte";
   import File from "./File.svelte";
@@ -8,11 +8,15 @@
   import NumberFlow from "@number-flow/svelte";
 
   let files = $state([]);
+  let loading = $state(true);
+
   async function fetchFiles() {
+    loading = true;
     const respone = await fetch(
       "https://7lqxtynf6xcfto7c3pxoqvipye0vokfk.lambda-url.eu-west-2.on.aws/"
     );
     files = await respone.json();
+    loading = false;
     console.log(files);
   }
   let filesCount = $derived(files.length);
@@ -81,11 +85,23 @@
           class="w-full active:outline-none active:ring-0 focus:outline-none focus:ring-0"
         />
       </div>
-      {#each searchResults as file}
-        <div class="flex gap-3 justify-center items-center">
-          <File fileName={file.fileName} downloadURL={file.downloadURL} />
+      {#if loading}
+        <div class="flex flex-col items-center justify-center gap-1 mt-6">
+          <Spinner />
+          <p class="text-center text-gray-500">Fetching files...</p>
         </div>
-      {/each}
+      {:else if searchQuery && searchResults.length === 0}
+        <div class="flex flex-col items-center justify-center gap-1 mt-6">
+          <p class="text-center text-gray-500">No files found</p>
+          <HeartCrack size={20} color="gray" strokeWidth={2} />
+        </div>
+      {:else}
+        {#each searchResults as file}
+          <div class="flex gap-3 justify-center items-center">
+            <File fileName={file.fileName} downloadURL={file.downloadURL} />
+          </div>
+        {/each}
+      {/if}
     </div>
   </div>
 </main>
