@@ -2,6 +2,7 @@
   import { Upload, Search, HeartCrack } from "lucide-svelte";
   import { Toaster, toast } from "svelte-sonner";
   import Spinner from "./Spinner.svelte";
+  import Reload from "./Reload.svelte";
   import File from "./File.svelte";
   import { onMount } from "svelte";
   import NumberFlow from "@number-flow/svelte";
@@ -109,6 +110,32 @@
       handleUpload(); // Directly call upload function after drop
     }
   }
+
+  async function deleteFile(fileName) {
+    try {
+      console.log("Deleting file:", fileName);
+      const response = await fetch(
+        "https://7lqxtynf6xcfto7c3pxoqvipye0vokfk.lambda-url.eu-west-2.on.aws/",
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fileName }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to delete file");
+      }
+      const data = await response.json();
+      console.log(data.message);
+      await fetchFiles();
+      toast.success("File deleted successfully", { duration: 750 });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  let reloadSpinAnimation = $state(false);
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -180,9 +207,26 @@
   </div>
   <!-- files list -->
   <div id="files" class="w-full flex flex-col gap-2">
-    <p style="letter-spacing: -0.5px;" class="font-mono font-semibold">
-      Files count - <NumberFlow value={filesCount} />
-    </p>
+    <div class="flex justify-between pr-2">
+      <p style="letter-spacing: -0.5px;" class="font-mono font-semibold">
+        Files count - <NumberFlow value={filesCount} />
+      </p>
+      <button
+        onclick={() => {
+          fetchFiles();
+          reloadSpinAnimation = true;
+          setTimeout(() => {
+            reloadSpinAnimation = false;
+          }, 750);
+        }}
+        class="cursor-pointer"
+        style={reloadSpinAnimation
+          ? "animation: spin 0.75s cubic-bezier(0.165, 0.84, 0.44, 1) infinite"
+          : ""}
+      >
+        <Reload />
+      </button>
+    </div>
     <div
       class="h-full font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm p-5 pl-6 flex flex-col gap-3 overflow-y-scroll"
     >
@@ -209,7 +253,11 @@
       {:else}
         {#each searchResults as file}
           <div class="flex gap-3 justify-center items-center">
-            <File fileName={file.fileName} downloadURL={file.downloadURL} />
+            <File
+              fileName={file.fileName}
+              downloadURL={file.downloadURL}
+              onDelete={deleteFile}
+            />
           </div>
         {/each}
       {/if}
