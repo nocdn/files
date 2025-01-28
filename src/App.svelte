@@ -134,6 +134,40 @@
     }
   }
   let reloadSpinAnimation = $state(false);
+
+  async function editFile(oldFileName, newFileName) {
+    console.log("old file name", oldFileName);
+    console.log("new file name", newFileName);
+
+    try {
+      console.log(`renaming file: ${oldFileName} -> ${newFileName}`);
+      const response = await fetch(
+        "https://7lqxtynf6xcfto7c3pxoqvipye0vokfk.lambda-url.eu-west-2.on.aws/",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            oldFileName: oldFileName,
+            newFileName: newFileName,
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to rename file");
+      }
+      const data = await response.json();
+      console.log(data.message);
+      await fetchFiles();
+      toast.success("File renamed successfully", {
+        duration: 2000,
+        description: `${oldFileName} -> ${newFileName}`,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
 </script>
 
 <main
@@ -157,6 +191,7 @@
   }}
 >
   {#if isDragging}
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       ondrop={handleDrop}
       class="absolute inset-0 bg-black/65 z-50 flex flex-col justify-center items-center text-white p-3"
@@ -254,6 +289,7 @@
               fileName={file.fileName}
               downloadURL={file.downloadURL}
               onDelete={deleteFile}
+              onEdit={editFile}
             />
           </div>
         {/each}
