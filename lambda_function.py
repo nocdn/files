@@ -60,7 +60,25 @@ def lambda_handler(event, context):
             'body': json.dumps({"uploadURL": upload_url})
         }
 
-    # If neither GET nor POST were called, return a 405 (Method Not Allowed)
+    elif http_method == 'DELETE':
+        # Parse the request body for the file name
+        body = json.loads(event.get('body', '{}'))
+        file_name = body.get('fileName', '')
+
+        if not file_name:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({"error": "Missing 'fileName' parameter"})
+            }
+
+        # Delete the specified file from the S3 bucket
+        s3.delete_object(Bucket=bucket_name, Key=file_name)
+        return {
+            'statusCode': 200,
+            'body': json.dumps({"message": f"File '{file_name}' deleted successfully."})
+        }
+
+    # If neither GET, POST, nor DELETE was called, return a 405 (Method Not Allowed)
     return {
         'statusCode': 405,
         'body': json.dumps({"error": "Method Not Allowed"})
