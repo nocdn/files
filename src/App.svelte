@@ -12,7 +12,7 @@
   let uploading = $state(false);
   let fileInput;
   let fileInputValue;
-  let isDragging = $state(false); // State for drag and drop
+  let isDragging = $state(false);
 
   async function fetchFiles() {
     loading = true;
@@ -25,7 +25,6 @@
   }
 
   async function handleUpload() {
-    // Access file directly from the bound fileInput element
     const file = fileInput?.files[0];
 
     if (!file) {
@@ -37,7 +36,6 @@
     const toastId = toast.loading("Getting upload URL...");
 
     try {
-      // Get the presigned URL
       const response = await fetch(
         "https://7lqxtynf6xcfto7c3pxoqvipye0vokfk.lambda-url.eu-west-2.on.aws/",
         {
@@ -57,8 +55,6 @@
 
       const { uploadURL } = await response.json();
 
-      // Upload the file using the presigned URL
-      toast.loading("Uploading file...", { id: toastId });
       const uploadResponse = await fetch(uploadURL, {
         method: "PUT",
         body: file,
@@ -72,9 +68,7 @@
       }
 
       toast.success("File uploaded successfully!", { id: toastId });
-
       fileInputValue = "";
-
       await fetchFiles();
     } catch (error) {
       console.error("Upload error:", error);
@@ -101,13 +95,17 @@
     )
   );
 
+  $effect(() => {
+    console.log("Search query:", searchQuery);
+  });
+
   function handleDrop(event) {
     event.preventDefault();
     isDragging = false;
     const droppedFiles = event.dataTransfer.files;
     if (droppedFiles.length > 0) {
-      fileInput.files = droppedFiles; // Programmatically set files
-      handleUpload(); // Directly call upload function after drop
+      fileInput.files = droppedFiles;
+      handleUpload();
     }
   }
 
@@ -138,8 +136,8 @@
   let reloadSpinAnimation = $state(false);
 </script>
 
-<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <main
+  class="fixed inset-0 grid grid-cols-[30%_70%] gap-4 p-8"
   ondragover={(event) => {
     event.preventDefault();
     isDragging = true;
@@ -152,11 +150,13 @@
     event.preventDefault();
     isDragging = false;
   }}
-  class="relative grid grid-cols-[30%_70%] gap-4 p-8 h-screen w-screen"
+  ondrop={(event) => {
+    event.preventDefault();
+    handleDrop(event);
+    isDragging = false;
+  }}
 >
   {#if isDragging}
-    <!-- Dropzone overlay -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       ondrop={handleDrop}
       class="absolute inset-0 bg-black/65 z-50 flex flex-col justify-center items-center text-white p-3"
@@ -171,8 +171,8 @@
       </div>
     </div>
   {/if}
-  <!-- upload files -->
-  <div id="uploads" class="flex flex-col gap-2">
+
+  <div id="uploads" class="flex flex-col gap-2 h-fit">
     <p style="letter-spacing: -0.5px;" class="font-mono font-semibold">
       Upload a file
     </p>
@@ -182,11 +182,7 @@
         type="file"
         name="file-input"
         id="file-input"
-        class="block w-full border border-gray-200 drop-shadow-xs rounded-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none
-        file:bg-gray-50 file:border-0
-        file:me-4
-        file:py-3 file:px-4
-       "
+        class="block w-full border border-gray-200 drop-shadow-xs rounded-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none file:bg-gray-50 file:border-0 file:me-4 file:py-3 file:px-4"
         disabled={uploading}
         bind:this={fileInput}
         bind:value={fileInputValue}
@@ -205,9 +201,9 @@
       {/if}
     </button>
   </div>
-  <!-- files list -->
-  <div id="files" class="w-full flex flex-col gap-2">
-    <div class="flex justify-between pr-2">
+
+  <div id="files" class="flex flex-col h-full overflow-hidden">
+    <div class="flex justify-between pr-2 mb-2">
       <p style="letter-spacing: -0.5px;" class="font-mono font-semibold">
         Files count - <NumberFlow value={filesCount} />
       </p>
@@ -227,8 +223,9 @@
         <Reload />
       </button>
     </div>
+
     <div
-      class="h-full font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm p-5 pl-6 flex flex-col gap-3 overflow-y-scroll"
+      class="flex-1 font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm p-5 pl-6 flex flex-col gap-3 overflow-y-auto"
     >
       <div class="flex gap-2 items-center mb-3 pl-2">
         <Search size={16} color="gray" strokeWidth={2.5} />
