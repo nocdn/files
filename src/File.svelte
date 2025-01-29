@@ -15,6 +15,7 @@
   } from "lucide-svelte";
 
   import FileChip from "./FileChip.svelte";
+  import FileSize from "./FileSize.svelte";
 
   let { fileName, downloadURL, fileSize, onDelete, onEdit } = $props();
 
@@ -114,15 +115,7 @@
       {/if}
       <div class="flex items-center gap-3">
         <FileChip fileExtension={fileName.split(".").pop().toLowerCase()} />
-        <p class="text-sm font-mono text-gray-400 font-semibold">
-          {#if fileSize > 1024 * 1024}
-            {(fileSize / (1024 * 1024)).toFixed(2)}MB
-          {:else if fileSize > 1024}
-            {(fileSize / 1024).toFixed(2)}KB
-          {:else}
-            {fileSize}B
-          {/if}
-        </p>
+        <FileSize {fileSize} />
       </div>
     </div>
   </div>
