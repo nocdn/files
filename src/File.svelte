@@ -16,7 +16,7 @@
 
   import FileChip from "./FileChip.svelte";
 
-  let { fileName, downloadURL, onDelete, onEdit } = $props();
+  let { fileName, downloadURL, fileSize, onDelete, onEdit } = $props();
 
   let tempCopied = $state(false);
   function copyToClipoard(link) {
@@ -115,7 +115,13 @@
       <div class="flex items-center gap-3">
         <FileChip fileExtension={fileName.split(".").pop().toLowerCase()} />
         <p class="text-sm font-mono text-gray-400 font-semibold">
-          {Math.floor(Math.random() * 150)}mb
+          {#if fileSize > 1024 * 1024}
+            {(fileSize / (1024 * 1024)).toFixed(2)}MB
+          {:else if fileSize > 1024}
+            {(fileSize / 1024).toFixed(2)}KB
+          {:else}
+            {fileSize}B
+          {/if}
         </p>
       </div>
     </div>

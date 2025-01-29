@@ -288,6 +288,7 @@
             <File
               fileName={file.fileName}
               downloadURL={file.downloadURL}
+              fileSize={file.fileSize}
               onDelete={deleteFile}
               onEdit={editFile}
             />
