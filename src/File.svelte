@@ -14,6 +14,8 @@
     Check,
   } from "lucide-svelte";
 
+  import FileChip from "./FileChip.svelte";
+
   let { fileName, downloadURL, onDelete, onEdit } = $props();
 
   let tempCopied = $state(false);
@@ -48,7 +50,7 @@
 </script>
 
 <main class="flex w-full justify-between items-center">
-  <div class="flex items-center gap-3">
+  <div class="flex items-center gap-3 w-full">
     <div
       class="py-3 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800"
     >
@@ -87,6 +89,7 @@
       {:else}
         <input
           id="editingFileName"
+          class="w-96"
           type="text"
           bind:value={newFileName}
           onkeydown={(e) => {
@@ -98,12 +101,10 @@
           }}
         />
       {/if}
-      <p class="text-xs text-gray-400">
-        Uploaded {new Date(Date.now()).toLocaleDateString()}
-      </p>
+      <FileChip fileExtension={fileName.split(".").pop().toLowerCase()} />
     </div>
   </div>
-  <div class="flex gap-3">
+  <div class="flex gap-3 opacity-40">
     <button
       onclick={() => {
         console.log("copying...");
