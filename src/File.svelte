@@ -47,9 +47,20 @@
   let copyButtonActive = $state(false);
   let deleteButtonActive = $state(false);
   let downloadButtonActive = $state(false);
+
+  let hoveringContainer = $state(false);
 </script>
 
-<main class="flex w-full justify-between items-center">
+<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+<main
+  onmouseover={() => {
+    hoveringContainer = true;
+  }}
+  onmouseleave={() => {
+    hoveringContainer = false;
+  }}
+  class="flex w-full justify-between items-center"
+>
   <div class="flex items-center gap-3 w-full">
     <div
       class="py-3 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800"
@@ -101,10 +112,19 @@
           }}
         />
       {/if}
-      <FileChip fileExtension={fileName.split(".").pop().toLowerCase()} />
+      <div class="flex items-center gap-3">
+        <FileChip fileExtension={fileName.split(".").pop().toLowerCase()} />
+        <p class="text-sm font-mono text-gray-400 font-semibold">
+          {Math.floor(Math.random() * 150)}mb
+        </p>
+      </div>
     </div>
   </div>
-  <div class="flex gap-3 opacity-40">
+  <div
+    class="flex gap-3 {hoveringContainer
+      ? 'opacity-100'
+      : 'opacity-40'} transition-opacity duration-150 linear"
+  >
     <button
       onclick={() => {
         console.log("copying...");
@@ -121,12 +141,11 @@
         : ''}"
     >
       {#if tempCopied}
-        <Check size={16} />
+        <Check size={16} strokeWidth={2.75} />
       {:else}
         <Link size={16} />
       {/if}
     </button>
-    <!-- Call the deleteFile function when this button is clicked -->
     <button
       onmousedown={() => {
         deleteButtonActive = true;
