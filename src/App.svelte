@@ -235,6 +235,11 @@
         Upload <Upload size={16} />
       {/if}
     </button>
+    <p
+      class="inline-flex w-full justify-center font-sfmono text-gray-400 text-sm mt-2 font-medium"
+    >
+      or drop a file anywhere
+    </p>
   </div>
 
   <div id="files" class="flex flex-col h-full overflow-hidden">
