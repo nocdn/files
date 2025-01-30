@@ -6,6 +6,7 @@
   import File from "./File.svelte";
   import { onMount } from "svelte";
   import NumberFlow from "@number-flow/svelte";
+  import Progress from "./Progress.svelte";
 
   let files = $state([]);
   let loading = $state(true);
@@ -14,11 +15,12 @@
   let fileInputValue;
   let isDragging = $state(false);
 
+  const functionUrl =
+    "https://4fs6phrs63seyxvmxhmcwoglw40gvvrc.lambda-url.eu-west-2.on.aws/";
+
   async function fetchFiles() {
     loading = true;
-    const response = await fetch(
-      "https://7lqxtynf6xcfto7c3pxoqvipye0vokfk.lambda-url.eu-west-2.on.aws/"
-    );
+    const response = await fetch(functionUrl);
     files = await response.json();
     loading = false;
     console.log(files);
@@ -36,18 +38,15 @@
     const toastId = toast.loading("Getting upload URL...");
 
     try {
-      const response = await fetch(
-        "https://7lqxtynf6xcfto7c3pxoqvipye0vokfk.lambda-url.eu-west-2.on.aws/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            fileName: file.name,
-          }),
-        }
-      );
+      const response = await fetch(functionUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to get upload URL");
@@ -112,16 +111,13 @@
   async function deleteFile(fileName) {
     try {
       console.log("Deleting file:", fileName);
-      const response = await fetch(
-        "https://7lqxtynf6xcfto7c3pxoqvipye0vokfk.lambda-url.eu-west-2.on.aws/",
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ fileName }),
-        }
-      );
+      const response = await fetch(functionUrl, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fileName }),
+      });
       if (!response.ok) {
         throw new Error("Failed to delete file");
       }
@@ -141,19 +137,16 @@
 
     try {
       console.log(`renaming file: ${oldFileName} -> ${newFileName}`);
-      const response = await fetch(
-        "https://7lqxtynf6xcfto7c3pxoqvipye0vokfk.lambda-url.eu-west-2.on.aws/",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            oldFileName: oldFileName,
-            newFileName: newFileName,
-          }),
-        }
-      );
+      const response = await fetch(functionUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          oldFileName: oldFileName,
+          newFileName: newFileName,
+        }),
+      });
       if (!response.ok) {
         throw new Error("Failed to rename file");
       }
@@ -240,6 +233,7 @@
     >
       or drop a file anywhere
     </p>
+    <Progress value={12} />
   </div>
 
   <div id="files" class="flex flex-col h-full overflow-hidden">

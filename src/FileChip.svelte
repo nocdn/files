@@ -38,7 +38,7 @@
   >
     lossy image
   </p>
-{:else if fileExtension === "png" || fileExtension === "gif" || fileExtension === "tiff" || fileExtension === "bmp" || fileExtension === "jxl"}
+{:else if fileExtension === "png" || fileExtension === "gif" || fileExtension === "tiff" || fileExtension === "bmp" || fileExtension === "jxl" || fileExtension === "svg"}
   <p
     class="w-fit inline-flex items-center rounded border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent px-1.5 py-0.5 text-xs font-mono bg-[#D6F0FF] text-[#125CF3]"
   >
