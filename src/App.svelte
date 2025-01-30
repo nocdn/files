@@ -26,14 +26,14 @@
     console.log(files);
   }
 
+  let uploadProgress = $state(0);
+
   async function handleUpload() {
     const file = fileInput?.files[0];
-
     if (!file) {
       toast.error("Please select a file first");
       return;
     }
-
     uploading = true;
     const toastId = toast.loading("Getting upload URL...");
 
@@ -54,26 +54,38 @@
 
       const { uploadURL } = await response.json();
 
-      const uploadResponse = await fetch(uploadURL, {
-        method: "PUT",
-        body: file,
-        headers: {
-          "Content-Type": file.type,
-        },
-      });
+      // Use XMLHttpRequest to track progress.
+      const xhr = new XMLHttpRequest();
+      xhr.open("PUT", uploadURL);
 
-      if (!uploadResponse.ok) {
-        throw new Error("Failed to upload file");
-      }
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          uploadProgress = Math.round((e.loaded / e.total) * 100);
+        }
+      };
 
-      toast.success("File uploaded successfully!", { id: toastId });
-      fileInputValue = "";
-      await fetchFiles();
+      xhr.onload = async () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          toast.success("File uploaded successfully!", { id: toastId });
+          fileInputValue = "";
+          await fetchFiles();
+        } else {
+          throw new Error("Failed to upload file");
+        }
+      };
+
+      xhr.onerror = () => {
+        toast.error("Failed to upload file", { id: toastId });
+      };
+
+      xhr.setRequestHeader("Content-Type", file.type);
+      xhr.send(file);
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Failed to upload file", { id: toastId });
     } finally {
       uploading = false;
+      uploadProgress = 0;
     }
   }
 
@@ -233,7 +245,7 @@
     >
       or drop a file anywhere
     </p>
-    <Progress value={12} />
+    <Progress value={uploadProgress} />
   </div>
 
   <div id="files" class="flex flex-col h-full overflow-hidden">
