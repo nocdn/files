@@ -1,4 +1,5 @@
 <svg
+  class="motion-opacity-in-0 motion-blur-in-md motion-duration-100"
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 100 100"
   preserveAspectRatio="xMidYMid"
