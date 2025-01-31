@@ -1,0 +1,15 @@
+# easy
+
+- upload speed
+- smoothly append files to file list
+- file list sorting
+- implement upload pausing
+- add new icon design from fal.ai model page (https://fal.ai/models)
+- create qr code
+
+# difficult
+
+- folders support
+- drag and drop
+- upload straight into a folder
+- multiple selection for downloading, deletion, etc (select by clicking the file icon next to the filename)

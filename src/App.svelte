@@ -14,6 +14,7 @@
   let fileInput;
   let fileInputValue;
   let isDragging = $state(false);
+  let currentXHR = $state(null);
 
   const functionUrl =
     "https://4fs6phrs63seyxvmxhmcwoglw40gvvrc.lambda-url.eu-west-2.on.aws/";
@@ -54,8 +55,8 @@
 
       const { uploadURL } = await response.json();
 
-      // Use XMLHttpRequest to track progress.
       const xhr = new XMLHttpRequest();
+      currentXHR = xhr;
       xhr.open("PUT", uploadURL);
 
       xhr.upload.onprogress = (e) => {
@@ -72,10 +73,12 @@
         } else {
           throw new Error("Failed to upload file");
         }
+        currentXHR = null;
       };
 
       xhr.onerror = () => {
         toast.error("Failed to upload file", { id: toastId });
+        currentXHR = null;
       };
 
       xhr.setRequestHeader("Content-Type", file.type);
@@ -83,9 +86,20 @@
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Failed to upload file", { id: toastId });
+      currentXHR = null;
     } finally {
       uploading = false;
       uploadProgress = 0;
+    }
+  }
+
+  function handleCancel() {
+    if (currentXHR) {
+      currentXHR.abort();
+      currentXHR = null;
+      uploading = false;
+      uploadProgress = 0;
+      toast.error("Upload cancelled");
     }
   }
 
@@ -217,12 +231,12 @@
       Upload a file
     </p>
     <form>
-      <label for="file-input" class="sr-only">Choose file</label>
+      <label for="file-input" class="sr-only cursor-pointer">Choose file</label>
       <input
         type="file"
         name="file-input"
         id="file-input"
-        class="block w-full border border-gray-200 drop-shadow-xs rounded-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none file:bg-gray-50 file:border-0 file:me-4 file:py-3 file:px-4"
+        class="block w-full border cursor-pointer border-gray-200 drop-shadow-xs rounded-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none file:bg-gray-50 file:border-0 file:me-4 file:py-3 file:px-4"
         disabled={uploading}
         bind:this={fileInput}
         bind:value={fileInputValue}
@@ -232,7 +246,7 @@
       type="button"
       onclick={handleUpload}
       disabled={uploading}
-      class="py-2.5 px-4 font-mono font-semibold inline-flex justify-center items-center gap-x-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+      class="px-4 h-11 font-mono font-semibold inline-flex justify-center items-center gap-x-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 active:scale-98 transition-transform duration-50 ease-in-out transform cursor-pointer"
     >
       {#if uploading}
         <Spinner /> Uploading...
@@ -245,7 +259,13 @@
     >
       or drop a file anywhere
     </p>
-    <Progress value={uploadProgress} />
+    <Progress
+      value={uploadProgress}
+      onCancel={handleCancel}
+      onPause={() => {
+        console.log("pausing will not be implemented yet");
+      }}
+    />
   </div>
 
   <div id="files" class="flex flex-col h-full overflow-hidden">
