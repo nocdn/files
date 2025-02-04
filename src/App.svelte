@@ -5,7 +5,7 @@
   import Reload from "./Reload.svelte";
   import File from "./File.svelte";
   import { onMount } from "svelte";
-  import NumberFlow from "@number-flow/svelte";
+  import NumberFlow, { continuous } from "@number-flow/svelte";
   import Progress from "./Progress.svelte";
 
   let files = $state([]);
@@ -16,6 +16,8 @@
   let isDragging = $state(false);
   let currentXHR = $state(null);
 
+  let shownFiles = $state(0);
+
   const functionUrl =
     "https://4fs6phrs63seyxvmxhmcwoglw40gvvrc.lambda-url.eu-west-2.on.aws/";
 
@@ -25,6 +27,13 @@
     files = await response.json();
     loading = false;
     console.log(files);
+    const interval = setInterval(() => {
+      if (shownFiles < files.length) {
+        shownFiles += 1;
+      } else {
+        clearInterval(interval);
+      }
+    }, 45);
   }
 
   let uploadProgress = $state(0);
@@ -288,7 +297,7 @@
   <div id="files" class="flex flex-col h-full overflow-hidden">
     <div class="flex justify-between pr-2 mb-2">
       <p style="letter-spacing: -0.5px;" class="font-mono font-semibold">
-        Files count - <NumberFlow value={filesCount} />
+        Files count - <NumberFlow value={filesCount} plugins={[continuous]} />
       </p>
       <button
         onclick={() => {
@@ -325,8 +334,7 @@
           class="ml-2 px-2 py-1 rounded-md text-sm focus:outline-none opacity-50 hover:opacity-85 transition-opacity duration-150 linear w-fit"
           bind:value={sortOption}
         >
-          <option value="nosort">Last added to bucket</option>
-          <option value="name-asc">Name (A-Z)</option>
+          <option value="name-asc">Original: Name (A-Z)</option>
           <option value="name-desc">Name (Z-A)</option>
           <option value="size-asc">Size (Small to Large)</option>
           <option value="size-desc">Size (Large to Small)</option>
@@ -343,7 +351,7 @@
           <HeartCrack size={20} color="gray" strokeWidth={2} />
         </div>
       {:else}
-        {#each searchResults as file}
+        {#each searchResults as file, i}
           <div class="flex gap-3 justify-center items-center">
             <File
               fileName={file.fileName}
@@ -351,6 +359,7 @@
               fileSize={file.fileSize}
               onDelete={deleteFile}
               onEdit={editFile}
+              shown={i < shownFiles ? true : false}
             />
           </div>
         {/each}

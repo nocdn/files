@@ -1,8 +1,7 @@
 # easy
 
 - upload speed
-- smoothly append files to file list
-- file list sorting
+- smoothly append files to file list AFTER a refresh of files, or removal
 - implement upload pausing
 - add new icon design from fal.ai model page (https://fal.ai/models)
 - create qr code

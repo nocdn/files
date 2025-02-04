@@ -20,7 +20,7 @@
   >
     video
   </p>
-{:else if fileExtension === "pdf" || fileExtension === "doc" || fileExtension === "docx" || fileExtension === "odt" || fileExtension === "rtf" || fileExtension === "txt"}
+{:else if fileExtension === "pdf" || fileExtension === "doc" || fileExtension === "docx" || fileExtension === "odt" || fileExtension === "rtf" || fileExtension === "txt" || fileExtension === "md"}
   <p
     class="w-fit inline-flex items-center rounded border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent px-1.5 py-0.5 text-xs font-mono bg-[#EFEEFC] text-[#6220EE]"
   >
@@ -43,5 +43,11 @@
     class="w-fit inline-flex items-center rounded border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent px-1.5 py-0.5 text-xs font-mono bg-[#D6F0FF] text-[#125CF3]"
   >
     lossless image
+  </p>
+{:else if fileExtension === "js" || fileExtension === "ts" || fileExtension === "py" || fileExtension === "svelte" || fileExtension === "c" || fileExtension === "asm" || fileExtension === "cpp" || fileExtension === "h" || fileExtension === "java" || fileExtension === "html" || fileExtension === "css" || fileExtension === "php" || fileExtension === "asp" || fileExtension === "jsp" || fileExtension === "erb" || fileExtension === "ejs" || fileExtension === "sh" || fileExtension === "bash" || fileExtension === "perl" || fileExtension === "pl" || fileExtension === "rb" || fileExtension === "tcl" || fileExtension === "sql" || fileExtension === "xml" || fileExtension === "json" || fileExtension === "csv" || fileExtension === "db" || fileExtension === "exe" || fileExtension === "o" || fileExtension === "obj" || fileExtension === "lib" || fileExtension === "gradle" || fileExtension === "maven" || fileExtension === "npm" || fileExtension === "git" || fileExtension === "swift" || fileExtension === "kt" || fileExtension === "xcodeproj" || fileExtension === "cs" || fileExtension === "unity" || fileExtension === "lua" || fileExtension === "gd" || fileExtension === "yml" || fileExtension === "yaml" || fileExtension === "md" || fileExtension === "rst"}
+  <p
+    class="w-fit inline-flex items-center rounded border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent px-1.5 py-0.5 text-xs font-mono bg-[#FEF1F5] text-[#D13869]"
+  >
+    code
   </p>
 {/if}
