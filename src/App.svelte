@@ -113,11 +113,26 @@
 
   let searchQuery = $state("");
   let searchResults = $derived(
-    files.filter((file) =>
-      searchQuery.length === 0
-        ? true
-        : file.fileName.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    files
+      .filter((file) =>
+        searchQuery.length === 0
+          ? true
+          : file.fileName.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .sort((a, b) => {
+        switch (sortOption) {
+          case "name-asc":
+            return a.fileName.localeCompare(b.fileName);
+          case "name-desc":
+            return b.fileName.localeCompare(a.fileName);
+          case "size-asc":
+            return a.fileSize - b.fileSize;
+          case "size-desc":
+            return b.fileSize - a.fileSize;
+          default:
+            return 0;
+        }
+      })
   );
 
   $effect(() => {
