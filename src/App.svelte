@@ -187,6 +187,8 @@
       console.error(error);
     }
   }
+
+  let sortOption = $state();
 </script>
 
 <main
@@ -293,15 +295,27 @@
     <div
       class="flex-1 font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm p-5 pl-6 flex flex-col gap-3 overflow-y-auto"
     >
-      <div class="flex gap-2 items-center mb-3 pl-2">
-        <Search size={16} color="gray" strokeWidth={2.5} />
-        <input
-          bind:this={inputField}
-          bind:value={searchQuery}
-          type="text"
-          placeholder="Search files"
-          class="w-full active:outline-none active:ring-0 focus:outline-none focus:ring-0"
-        />
+      <div class="flex justify-between item-center">
+        <div class="flex gap-2 items-center mb-3 pl-2">
+          <Search size={16} color="gray" strokeWidth={2.5} />
+          <input
+            bind:this={inputField}
+            bind:value={searchQuery}
+            type="text"
+            placeholder="Search files"
+            class="w-full active:outline-none active:ring-0 focus:outline-none focus:ring-0"
+          />
+        </div>
+        <select
+          class="ml-2 px-2 py-1 rounded-md text-sm focus:outline-none opacity-50 hover:opacity-85 transition-opacity duration-150 linear w-fit"
+          bind:value={sortOption}
+        >
+          <option value="nosort">Last added to bucket</option>
+          <option value="name-asc">Name (A-Z)</option>
+          <option value="name-desc">Name (Z-A)</option>
+          <option value="size-asc">Size (Small to Large)</option>
+          <option value="size-desc">Size (Large to Small)</option>
+        </select>
       </div>
       {#if loading}
         <div class="flex flex-col items-center justify-center gap-1 mt-6">
