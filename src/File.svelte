@@ -15,20 +15,11 @@
     QrCode,
   } from "lucide-svelte";
 
-  import QRCode from "qrcode";
-
   import FileChip from "./FileChip.svelte";
   import FileSize from "./FileSize.svelte";
 
-  let { fileName, downloadURL, fileSize, onDelete, onEdit, shown } = $props();
-
-  const generateQR = async (text) => {
-    try {
-      console.log(await QRCode.toDataURL(text));
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  let { fileName, downloadURL, fileSize, onDelete, onEdit, shown, onQR } =
+    $props();
 
   let tempCopied = $state(false);
   function copyToClipoard(link) {
@@ -141,7 +132,7 @@
         <div
           onmousedown={() => {
             console.log("creating qr code...");
-            generateQR(downloadURL);
+            onQR;
           }}
           class="py-2 px-1 inline-flex justify-center items-center motion-opacity-in-25 motion-blur-in-xs motion-duration-500 rounded-lg"
         >

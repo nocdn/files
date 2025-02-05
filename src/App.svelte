@@ -7,6 +7,7 @@
   import { onMount } from "svelte";
   import NumberFlow, { continuous } from "@number-flow/svelte";
   import Progress from "./Progress.svelte";
+  import Modal from "./Modal.svelte";
 
   let files = $state([]);
   let loading = $state(true);
@@ -214,6 +215,23 @@
   }
 
   let sortOption = $state();
+
+  let isModalOpen = $state(false);
+  function showQRmodal() {
+    isModalOpen = true;
+  }
+
+  import QRCode from "qrcode";
+  let qrcodesrc = $state();
+  const generateQR = async (text) => {
+    try {
+      qrcodesrc = await QRCode.toDataURL(text);
+
+      showQRmodal();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 </script>
 
 <main
@@ -361,6 +379,7 @@
               onDelete={deleteFile}
               onEdit={editFile}
               shown={i < shownFiles ? true : false}
+              onQR={generateQR(file.downloadURL)}
             />
           </div>
         {/each}
@@ -368,5 +387,7 @@
     </div>
   </div>
 </main>
+
+<Modal isOpen={isModalOpen} onClose={() => (isModalOpen = false)} {qrcodesrc} />
 
 <Toaster offset="1.5rem" />
