@@ -217,17 +217,21 @@
   let sortOption = $state();
 
   let isModalOpen = $state(false);
-  function showQRmodal() {
-    isModalOpen = true;
+  function toggleQRmodal() {
+    isModalOpen = !isModalOpen;
+    console.log("current modal state:", isModalOpen);
   }
 
   import QRCode from "qrcode";
   let qrcodesrc = $state();
+  const qrOptions = {
+    scale: 20,
+  };
   const generateQR = async (text) => {
     try {
-      qrcodesrc = await QRCode.toDataURL(text);
+      qrcodesrc = await QRCode.toDataURL(text, qrOptions);
 
-      showQRmodal();
+      toggleQRmodal();
     } catch (err) {
       console.error(err);
     }
@@ -379,7 +383,7 @@
               onDelete={deleteFile}
               onEdit={editFile}
               shown={i < shownFiles ? true : false}
-              onQR={generateQR(file.downloadURL)}
+              onQR={() => generateQR(file.downloadURL)}
             />
           </div>
         {/each}
@@ -388,6 +392,6 @@
   </div>
 </main>
 
-<Modal isOpen={isModalOpen} onClose={() => (isModalOpen = false)} {qrcodesrc} />
+<Modal isOpen={isModalOpen} onClose={toggleQRmodal} {qrcodesrc} />
 
 <Toaster offset="1.5rem" />

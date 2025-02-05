@@ -132,7 +132,7 @@
         <div
           onmousedown={() => {
             console.log("creating qr code...");
-            onQR;
+            onQR();
           }}
           class="py-2 px-1 inline-flex justify-center items-center motion-opacity-in-25 motion-blur-in-xs motion-duration-500 rounded-lg"
         >

@@ -1,5 +1,9 @@
 <script>
+  // @ts-nocheck
+
   import { fade, scale } from "svelte/transition";
+
+  import { X } from "lucide-svelte";
 
   let { isOpen = false, onClose = () => {}, qrcodesrc } = $props();
 
@@ -22,10 +26,16 @@
     aria-roledescription="dialog"
   >
     <div
-      class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6 transform flex flex-col gap-6"
+      class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6 transform flex flex-col gap-6 relative"
       in:scale={{ duration: 200, start: 0.97 }}
       out:scale={{ duration: 0 }}
     >
+      <button
+        onclick={onClose}
+        class="absolute -right-2.5 -top-2.5 p-1 rounded-full bg-white border-gray-200 border-2 hover:bg-gray-100"
+      >
+        <X size={20} />
+      </button>
       <img src={qrcodesrc} alt="" />
     </div>
   </div>
