@@ -27,6 +27,7 @@
     files = await response.json();
     loading = false;
     console.log(files);
+    shownFiles = 0;
     const interval = setInterval(() => {
       if (shownFiles < files.length) {
         shownFiles += 1;

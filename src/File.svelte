@@ -12,12 +12,23 @@
     File,
     Link,
     Check,
+    QrCode,
   } from "lucide-svelte";
+
+  import QRCode from "qrcode";
 
   import FileChip from "./FileChip.svelte";
   import FileSize from "./FileSize.svelte";
 
   let { fileName, downloadURL, fileSize, onDelete, onEdit, shown } = $props();
+
+  const generateQR = async (text) => {
+    try {
+      console.log(await QRCode.toDataURL(text));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   let tempCopied = $state(false);
   function copyToClipoard(link) {
@@ -125,27 +136,39 @@
         ? 'opacity-100'
         : 'opacity-40'} transition-opacity duration-150 linear"
     >
-      <button
-        onclick={() => {
-          console.log("copying...");
-          copyToClipoard(downloadURL);
-        }}
-        onmousedown={() => {
-          copyButtonActive = true;
-        }}
-        onmouseup={() => {
-          copyButtonActive = false;
-        }}
-        class="py-2 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none hover:bg-blue-50 hover:text-blue-800 hover:border-blue-200 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-transform duration-50 ease-in-out transform {copyButtonActive
-          ? 'scale-95'
-          : ''}"
-      >
-        {#if tempCopied}
-          <Check size={16} strokeWidth={2.75} />
-        {:else}
-          <Link size={16} />
-        {/if}
-      </button>
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      {#if hoveringContainer}
+        <div
+          onmousedown={() => {
+            console.log("creating qr code...");
+            generateQR(downloadURL);
+          }}
+          class="py-2 px-1 inline-flex justify-center items-center motion-opacity-in-25 motion-blur-in-xs motion-duration-500 rounded-lg"
+        >
+          <QrCode size={16} />
+        </div>
+        <button
+          onclick={() => {
+            console.log("copying...");
+            copyToClipoard(downloadURL);
+          }}
+          onmousedown={() => {
+            copyButtonActive = true;
+          }}
+          onmouseup={() => {
+            copyButtonActive = false;
+          }}
+          class="motion-blur-in-xs motion-opacity-in-35 motion-duration-500 py-2 px-3 inline-flex justify-center items-center transition-opacity linear gap-x-2 text-sm font-medium bg-white text-gray-800 rounded-lg focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none hover:bg-blue-50 hover:text-blue-800 hover:border-blue-200 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-transform duration-50 ease-in-out transform {copyButtonActive
+            ? 'scale-95'
+            : ''}"
+        >
+          {#if tempCopied}
+            <Check size={16} strokeWidth={2.75} />
+          {:else}
+            <Link size={16} />
+          {/if}
+        </button>
+      {/if}
       <button
         onmousedown={() => {
           deleteButtonActive = true;
