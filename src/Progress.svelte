@@ -1,7 +1,7 @@
 <script>
   import NumberFlow from "@number-flow/svelte";
   import { CircleStop, CirclePause } from "lucide-svelte";
-  let { value, onCancel, onPause } = $props();
+  let { value, uploadSpeed = 0, onCancel, onPause } = $props();
 
   let visible = $state(false);
   let showingDisappearingClasses = $state(false);
@@ -52,7 +52,7 @@
         </div>
         <span
           class="text-sm font-medium font-sfmono text-blue-700 dark:text-white"
-          ><NumberFlow {value} />%</span
+          >{value}%</span
         >
       </div>
     </div>
@@ -61,6 +61,9 @@
         class="bg-blue-600 h-2.5 rounded-full"
         style="width: {value}%; transition: width 0.4s cubic-bezier(0.32, 0.72, 0, 1)"
       ></div>
+    </div>
+    <div class="w-full mt-1.5">
+      <p class="text-sm font-sfmono opacity-40">{uploadSpeed} Mbps</p>
     </div>
   </div>
 {/if}

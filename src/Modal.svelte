@@ -32,7 +32,7 @@
     >
       <button
         onclick={onClose}
-        class="absolute -right-2.5 -top-2.5 p-1 rounded-full bg-white border-gray-200 border-2 hover:bg-gray-100"
+        class="absolute -right-2.5 -top-2.5 p-1 rounded-full bg-white border-gray-200 border-2 hover:bg-gray-100 cursor-pointer"
       >
         <X size={20} />
       </button>

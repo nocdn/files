@@ -39,6 +39,9 @@
   }
 
   let uploadProgress = $state(0);
+  let uploadSpeed = $state(0);
+  let lastLoaded = 0;
+  let lastTime = Date.now();
 
   async function handleUpload() {
     const file = fileInput?.files[0];
@@ -47,6 +50,9 @@
       return;
     }
     uploading = true;
+    uploadSpeed = 0;
+    lastLoaded = 0;
+    lastTime = Date.now();
     const toastId = toast.loading("Getting upload URL...");
 
     try {
@@ -73,6 +79,21 @@
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable) {
           uploadProgress = Math.round((e.loaded / e.total) * 100);
+
+          // Calculate upload speed
+          const currentTime = Date.now();
+          const timeDiff = (currentTime - lastTime) / 1000; // convert to seconds
+          const loadedDiff = e.loaded - lastLoaded;
+
+          if (timeDiff > 0) {
+            // calculate speed in Mbps
+            const speedMbps = (loadedDiff * 8) / timeDiff / 1000000;
+            uploadSpeed = Math.round(speedMbps * 100) / 100; // round to 2 d.p.
+
+            // Update last values
+            lastLoaded = e.loaded;
+            lastTime = currentTime;
+          }
         }
       };
 
@@ -314,6 +335,7 @@
       onPause={() => {
         console.log("pausing will not be implemented yet");
       }}
+      {uploadSpeed}
     />
   </div>
 

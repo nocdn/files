@@ -134,7 +134,7 @@
             console.log("creating qr code...");
             onQR();
           }}
-          class="py-2 px-1 inline-flex justify-center items-center motion-opacity-in-25 motion-blur-in-xs motion-duration-500 rounded-lg"
+          class="py-2 px-1 inline-flex justify-center items-center motion-opacity-in-25 motion-blur-in-xs motion-duration-500 rounded-lg cursor-pointer"
         >
           <QrCode size={16} />
         </div>
@@ -149,7 +149,7 @@
           onmouseup={() => {
             copyButtonActive = false;
           }}
-          class="motion-blur-in-xs motion-opacity-in-35 motion-duration-500 py-2 px-3 inline-flex justify-center items-center transition-opacity linear gap-x-2 text-sm font-medium bg-white text-gray-800 rounded-lg focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none hover:bg-blue-50 hover:text-blue-800 hover:border-blue-200 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-transform duration-50 ease-in-out transform {copyButtonActive
+          class="motion-blur-in-xs motion-opacity-in-35 motion-duration-500 cursor-pointer py-2 px-3 inline-flex justify-center items-center transition-opacity linear gap-x-2 text-sm font-medium bg-white text-gray-800 rounded-lg focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none hover:bg-blue-50 hover:text-blue-800 hover:border-blue-200 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-transform duration-50 ease-in-out transform {copyButtonActive
             ? 'scale-95'
             : ''}"
         >
@@ -170,7 +170,7 @@
         onclick={onDelete(fileName)}
         class="py-2 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none hover:bg-red-50 hover:text-red-700 hover:border-red-200 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 transition-transform duration-50 ease-in-out transform {deleteButtonActive
           ? 'scale-95'
-          : ''}"
+          : ''} cursor-pointer"
       >
         <Trash2 size={16} />
       </button>
