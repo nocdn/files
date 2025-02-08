@@ -1,7 +1,7 @@
 <script>
   import NumberFlow from "@number-flow/svelte";
   import { CircleStop, CirclePause } from "lucide-svelte";
-  let { value, uploadSpeed = 0, onCancel, onPause } = $props();
+  let { value, uploadSpeed = 0, fileName, onCancel, onPause } = $props();
 
   let visible = $state(false);
   let showingDisappearingClasses = $state(false);
@@ -28,7 +28,7 @@
     <div class="flex justify-between align-middle mb-1">
       <span
         class="text-sm font-medium font-sfmono text-blue-700 dark:text-white"
-        >progress</span
+        >{fileName}</span
       >
       <div class="flex align-middle items-center gap-2">
         <div class="flex gap-1.5 align-middle items-center">

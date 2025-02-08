@@ -17,6 +17,8 @@
   let isDragging = $state(false);
   let currentXHR = $state(null);
 
+  let uploadingFilename = $state("");
+
   let shownFiles = $state(0);
 
   const functionUrl =
@@ -45,6 +47,7 @@
 
   async function handleUpload() {
     const file = fileInput?.files[0];
+    uploadingFilename = file?.name;
     if (!file) {
       toast.error("Please select a file first");
       return;
@@ -334,6 +337,7 @@
     </p>
     <Progress
       value={uploadProgress}
+      fileName={uploadingFilename}
       onCancel={handleCancel}
       onPause={() => {
         console.log("pausing will not be implemented yet");
