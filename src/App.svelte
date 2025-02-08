@@ -45,99 +45,118 @@
   let lastLoaded = 0;
   let lastTime = Date.now();
 
+  let uploadingFiles = $state([]);
+
   async function handleUpload() {
-    const file = fileInput?.files[0];
-    uploadingFilename = file?.name;
-    if (!file) {
-      toast.error("Please select a file first");
+    const files = Array.from(fileInput?.files || []);
+    if (!files.length) {
+      toast.error("Please select files first");
       return;
     }
-    uploading = true;
-    uploadSpeed = 0;
-    lastLoaded = 0;
-    lastTime = Date.now();
-    const toastId = toast.loading("Getting upload URL...");
 
-    // Clear the file input value here
     fileInputValue = "";
 
-    try {
-      const response = await fetch(functionUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fileName: file.name,
-        }),
-      });
+    for (const file of files) {
+      const uploadInfo = {
+        fileName: file.name,
+        progress: 0,
+        speed: 0,
+        lastLoaded: 0,
+        lastTime: Date.now(),
+        xhr: null,
+      };
+      uploadingFiles = [...uploadingFiles, uploadInfo];
 
-      if (!response.ok) {
-        throw new Error("Failed to get upload URL");
-      }
+      const toastId = toast.loading(`Getting upload URL for ${file.name}...`);
 
-      const { uploadURL } = await response.json();
+      try {
+        const response = await fetch(functionUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fileName: file.name }),
+        });
 
-      const xhr = new XMLHttpRequest();
-      currentXHR = xhr;
-      xhr.open("PUT", uploadURL);
+        if (!response.ok) throw new Error("Failed to get upload URL");
 
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          uploadProgress = Math.round((e.loaded / e.total) * 100);
+        const { uploadURL } = await response.json();
+        const xhr = new XMLHttpRequest();
 
-          // Calculate upload speed
-          const currentTime = Date.now();
-          const timeDiff = (currentTime - lastTime) / 1000; // convert to seconds
-          const loadedDiff = e.loaded - lastLoaded;
+        // Update xhr reference in uploadInfo
+        uploadingFiles = uploadingFiles.map((info) =>
+          info.fileName === file.name ? { ...info, xhr } : info
+        );
 
-          if (timeDiff > 0) {
-            // calculate speed in Mbps
-            const speedMbps = (loadedDiff * 8) / timeDiff / 1000000;
-            uploadSpeed = Math.round(speedMbps * 100) / 100; // round to 2 d.p.
+        xhr.open("PUT", uploadURL);
 
-            // Update last values
-            lastLoaded = e.loaded;
-            lastTime = currentTime;
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const currentTime = Date.now();
+            const fileInfo = uploadingFiles.find(
+              (f) => f.fileName === file.name
+            );
+
+            if (fileInfo) {
+              const timeDiff = (currentTime - fileInfo.lastTime) / 1000;
+              const loadedDiff = e.loaded - fileInfo.lastLoaded;
+              const progress = Math.round((e.loaded / e.total) * 100);
+              const speed =
+                timeDiff > 0
+                  ? Math.round(((loadedDiff * 8) / timeDiff / 1000000) * 100) /
+                    100
+                  : 0;
+
+              uploadingFiles = uploadingFiles.map((info) =>
+                info.fileName === file.name
+                  ? {
+                      ...info,
+                      progress,
+                      speed,
+                      lastLoaded: e.loaded,
+                      lastTime: currentTime,
+                    }
+                  : info
+              );
+            }
           }
-        }
-      };
+        };
 
-      xhr.onload = async () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          toast.success("File uploaded successfully!", { id: toastId });
-          fileInputValue = "";
-          await fetchFiles();
-        } else {
-          throw new Error("Failed to upload file");
-        }
-        currentXHR = null;
-      };
+        xhr.onload = async () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            toast.success(`${file.name} uploaded successfully!`, {
+              id: toastId,
+            });
+            uploadingFiles = uploadingFiles.filter(
+              (f) => f.fileName !== file.name
+            );
+            await fetchFiles();
+          } else {
+            throw new Error("Failed to upload file");
+          }
+        };
 
-      xhr.onerror = () => {
-        toast.error("Failed to upload file", { id: toastId });
-        currentXHR = null;
-      };
+        xhr.onerror = () => {
+          toast.error(`Failed to upload ${file.name}`, { id: toastId });
+          uploadingFiles = uploadingFiles.filter(
+            (f) => f.fileName !== file.name
+          );
+        };
 
-      xhr.setRequestHeader("Content-Type", file.type);
-      xhr.send(file);
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Failed to upload file", { id: toastId });
-      currentXHR = null;
-    } finally {
-      uploading = false;
-      uploadProgress = 0;
+        xhr.setRequestHeader("Content-Type", file.type);
+        xhr.send(file);
+      } catch (error) {
+        console.error("Upload error:", error);
+        toast.error(`Failed to upload ${file.name}`, { id: toastId });
+        uploadingFiles = uploadingFiles.filter((f) => f.fileName !== file.name);
+      }
     }
   }
 
-  function handleCancel() {
-    if (currentXHR) {
-      currentXHR.abort();
-      currentXHR = null;
-      uploading = false;
-      uploadProgress = 0;
-      toast.error("Upload cancelled");
+  function handleCancel(fileName) {
+    const fileInfo = uploadingFiles.find((f) => f.fileName === fileName);
+    if (fileInfo?.xhr) {
+      fileInfo.xhr.abort();
+      uploadingFiles = uploadingFiles.filter((f) => f.fileName !== fileName);
+      toast.error(`Upload cancelled for ${fileName}`);
     }
   }
 
@@ -316,6 +335,7 @@
         disabled={uploading}
         bind:this={fileInput}
         bind:value={fileInputValue}
+        multiple
       />
     </form>
     <button
@@ -335,15 +355,19 @@
     >
       or drop a file anywhere
     </p>
-    <Progress
-      value={uploadProgress}
-      fileName={uploadingFilename}
-      onCancel={handleCancel}
-      onPause={() => {
-        console.log("pausing will not be implemented yet");
-      }}
-      {uploadSpeed}
-    />
+    <div class="flex flex-col gap-2">
+      {#each uploadingFiles as file}
+        <Progress
+          value={file.progress}
+          fileName={file.fileName}
+          onCancel={() => handleCancel(file.fileName)}
+          onPause={() => {
+            console.log("pausing will not be implemented yet");
+          }}
+          uploadSpeed={file.speed}
+        />
+      {/each}
+    </div>
   </div>
 
   <div id="files" class="flex flex-col h-full overflow-hidden">
