@@ -2,7 +2,6 @@
 
 - implement upload pausing
 - add new icon design from fal.ai model page (https://fal.ai/models)
-- multiple files upload the same time (with working queue, etc)
 
 # difficult
 

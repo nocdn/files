@@ -1,4 +1,5 @@
 <script>
+  // import ui components
   import { Upload, Search, HeartCrack } from "lucide-svelte";
   import { Toaster, toast } from "svelte-sonner";
   import Spinner from "./Spinner.svelte";
@@ -9,27 +10,37 @@
   import Progress from "./Progress.svelte";
   import Modal from "./Modal.svelte";
 
-  let files = $state([]);
-  let loading = $state(true);
-  let uploading = $state(false);
-  let fileInput;
-  let fileInputValue = $state();
-  let isDragging = $state(false);
-  let currentXHR = $state(null);
+  // reactive state variables
+  let files = $state([]); // stores the list of files
+  let loading = $state(true); // loading state for initial file fetch
+  let uploading = $state(false); // overall uploading state
+  let fileInput; // reference to file input element
+  let fileInputValue = $state(); // value of the file input
+  let isDragging = $state(false); // drag and drop state
+  let currentXHR = $state(null); // current xmlhttprequest object (might not be needed)
 
-  let uploadingFilename = $state("");
+  let uploadingFilename = $state(""); // filename that is currently being uploaded
 
-  let shownFiles = $state(0);
+  let shownFiles = $state(0); // number of files shown in the ui
+  let uploadProgress = $state(0); // upload progress percentage
+  let uploadSpeed = $state(0); // upload speed in mbps
+  let lastLoaded = 0; // last loaded amount for speed calculation
+  let lastTime = Date.now(); // last time progress was checked
+  let uploadingFiles = $state([]); // list of files being uploaded with metadata
 
+  // backend endpoint url
   const functionUrl =
     "https://4fs6phrs63seyxvmxhmcwoglw40gvvrc.lambda-url.eu-west-2.on.aws/";
 
+  // fetches files from backend
   async function fetchFiles() {
     loading = true;
     const response = await fetch(functionUrl);
     files = await response.json();
     loading = false;
     console.log(files);
+
+    // adds files with animation
     shownFiles = 0;
     const interval = setInterval(() => {
       if (shownFiles < files.length) {
@@ -40,13 +51,7 @@
     }, 45);
   }
 
-  let uploadProgress = $state(0);
-  let uploadSpeed = $state(0);
-  let lastLoaded = 0;
-  let lastTime = Date.now();
-
-  let uploadingFiles = $state([]);
-
+  // handles file upload to backend
   async function handleUpload() {
     const files = Array.from(fileInput?.files || []);
     if (!files.length) {
@@ -153,6 +158,7 @@
     }
   }
 
+  // cancels a file upload using xhr abort
   function handleCancel(fileName) {
     const fileInfo = uploadingFiles.find((f) => f.fileName === fileName);
     if (fileInfo?.xhr) {
@@ -162,15 +168,21 @@
     }
   }
 
+  // derived state, total number of files
   let filesCount = $derived(files.length);
+
+  // initial file fetch on component mount
   fetchFiles();
 
   let inputField;
+  // focus on the search bar on mount
   onMount(() => {
     inputField.focus();
   });
 
+  // search functionality
   let searchQuery = $state("");
+  // filters and sorts files based on search query and sort option
   let searchResults = $derived(
     files
       .filter((file) =>
@@ -198,6 +210,7 @@
     console.log("Search query:", searchQuery);
   });
 
+  // handles drag and drop file upload
   function handleDrop(event) {
     event.preventDefault();
     isDragging = false;
@@ -208,6 +221,7 @@
     }
   }
 
+  // deletes a file from backend and updates file list
   async function deleteFile(fileName) {
     try {
       console.log("Deleting file:", fileName);
@@ -231,6 +245,7 @@
   }
   let reloadSpinAnimation = $state(false);
 
+  // renames a file from backend and updates file list
   async function editFile(oldFileName, newFileName) {
     console.log("old file name", oldFileName);
     console.log("new file name", newFileName);
@@ -262,8 +277,10 @@
     }
   }
 
+  // sort option state
   let sortOption = $state();
 
+  // qr code modal
   let isModalOpen = $state(false);
   function toggleQRmodal() {
     isModalOpen = !isModalOpen;
