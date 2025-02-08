@@ -13,7 +13,7 @@
   let loading = $state(true);
   let uploading = $state(false);
   let fileInput;
-  let fileInputValue;
+  let fileInputValue = $state();
   let isDragging = $state(false);
   let currentXHR = $state(null);
 
@@ -54,6 +54,9 @@
     lastLoaded = 0;
     lastTime = Date.now();
     const toastId = toast.loading("Getting upload URL...");
+
+    // Clear the file input value here
+    fileInputValue = "";
 
     try {
       const response = await fetch(functionUrl, {
