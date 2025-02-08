@@ -54,7 +54,9 @@
       return;
     }
 
+    // clear file input immediately when upload starts
     fileInputValue = "";
+    fileInput.value = "";
 
     for (const file of files) {
       const uploadInfo = {
