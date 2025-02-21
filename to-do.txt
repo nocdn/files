@@ -1,6 +1,8 @@
 # easy
 
 - implement upload pausing
+- add eta to upload progress
+- make the tab title show the current upload progress and eta
 - add new icon design from fal.ai model page (https://fal.ai/models)
 
 # difficult
